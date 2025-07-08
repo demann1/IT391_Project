@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'MedievalSharp', cursive;
+  background-color: #0e1d0e;
+  color: #c8facc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 20px; /* Increased base font size */
+}
+
+.wizard-container {
+  text-align: center;
+  border: 3px solid #5aff5a;
+  padding: 3rem; /* More padding */
+  border-radius: 25px;
+  box-shadow: 0 0 30px #00ff88;
+  background: rgba(0, 0, 0, 0.7);
+  max-width: 700px; /* Wider container */
+  width: 90%;
+}
+
+.wizard-title {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: #66ff66;
+}
+
+.upload-label {
+  display: inline-block;
+  background-color: #004d00;
+  padding: 1rem 2rem;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 0 10px #00ff88;
+  margin-bottom: 1.5rem;
+}
+
+.upload-label input {
+  display: none;
+}
+
+.wizard-loading {
+  color: #ffff88;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+.wizard-error {
+  color: #ff6666;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+.wizard-summary {
+  background-color: #003300;
+  border: 2px solid #66ff66;
+  padding: 1.5rem;
+  border-radius: 15px;
+  margin-top: 2rem;
+  box-shadow: 0 0 15px #00ff88;
+  font-size: 1.2rem;
+}
