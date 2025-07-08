@@ -1,65 +1,67 @@
-import { useState } from 'react';
-import logo from './logo.svg';
+import { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
-  const [message, setMessage] = useState('');
-  const [fileName, setFileName] = useState('');
+  const [summary, setSummary] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleUpload = async (e) => {
-    const file = e.target.files[0];
-    setFileName(file.name);
-
-    const formData = new FormData();
-    formData.append('file', file);
+  const handleUpload = async (file) => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setError('');
 
     try {
+      const formData = new FormData();
+      formData.append('file', file);
+
       const response = await fetch('http://localhost:3001/upload', {
         method: 'POST',
         body: formData,
       });
+
+      if (!response.ok) throw new Error(await response.text());
+
       const data = await response.json();
-      setMessage(data.message);
-    } catch (error) {
-      setMessage('Upload failed: ' + error.message);
+      setSummary(data.summary);
+      localStorage.setItem(`cache-${file.name}`, data.summary);
+
+    } catch (err) {
+      setError(err.message.includes('rate limit') 
+        ? "Speed limit reached (3/min). Wait 20 seconds." 
+        : "AI busy. Try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        
-        {/* File Upload Section */}
-        <div style={{ margin: '20px' }}>
-          <input 
-            type="file" 
-            onChange={handleUpload} 
-            accept=".pdf,.pptx" 
-            id="file-upload"
-            style={{ display: 'none' }}
-          />
-          <label 
-            htmlFor="file-upload" 
-            className="App-link"
-            style={{ cursor: 'pointer', padding: '10px 15px', border: '1px solid white' }}
-          >
-            Upload Slides (PDF/PPTX)
-          </label>
-          {fileName && <p>Selected: {fileName}</p>}
-          {message && <p>{message}</p>}
-        </div>
+  useEffect(() => {
+    const cached = localStorage.getItem('last-summary');
+    if (cached) setSummary(cached);
+  }, []);
 
-        <p>Slide Sage: AI-powered slide enhancement</p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+  return (
+    <div className="wizard-container">
+      <h1 className="wizard-title">🧙‍♂️ Slide Sage</h1>
+
+      <label className="upload-label">
+        Upload Your Scroll (PDF)
+        <input 
+          type="file" 
+          onChange={(e) => handleUpload(e.target.files[0])}
+          disabled={isLoading}
+        />
+      </label>
+
+      {isLoading && <p className="wizard-loading">Casting Summarize Spell...</p>}
+      {error && <p className="wizard-error">{error}</p>}
+
+      {summary && (
+        <div className="wizard-summary">
+          <h2>📜 Enchanted Summary</h2>
+          <p>{summary}</p>
+        </div>
+      )}
     </div>
   );
 }
