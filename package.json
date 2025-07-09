@@ -1,0 +1,28 @@
+{
+  "name": "it391_project",
+  "version": "1.0.0",
+  "description": "Repository for IT 391",
+  "main": "App.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/demann1/IT391_Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/demann1/IT391_Project/issues"
+  },
+  "homepage": "https://github.com/demann1/IT391_Project#readme",
+  "dependencies": {
+    "dotenv": "^17.1.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.1",
+    "multer": "^2.0.1",
+    "openai": "^5.8.3"
+  }
+}
