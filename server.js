@@ -6,7 +6,13 @@ require('dotenv').config();
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
-const openai = new OpenAI(process.env.OPENAI_API_KEY);
+
+//commented out the real key to test the server without hitting the API
+//uncomment to use the real OpenAI API key
+//const openai = new OpenAI(process.env.OPENAI_API_KEY);
+
+
+const openai = new OpenAI({ apiKey: "sk-test-dummy" });
 
 // Rate limiting (3 requests/min for free tier)
 const limiter = rateLimit({
