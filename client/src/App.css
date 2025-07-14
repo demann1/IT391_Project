@@ -2,6 +2,9 @@
   text-align: center;
 }
 
+
+
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -36,3 +39,114 @@
     transform: rotate(360deg);
   }
 }
+
+/*Login button style*/
+.login-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  padding: 12px 28px;
+  font-size: 1.2rem;
+  border-radius: 20px;
+  border: none;
+  background-color: #61dafb;
+  color: #1a5223;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.login-input {
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  width: 200px;
+}
+
+.login-submit-btn {
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  background-color: #61dafb;
+  color: #282c34;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wizard-container {
+  text-align: center;
+  border: 3px solid #5aff5a;
+  padding: 3rem; /* More padding */
+  border-radius: 25px;
+  box-shadow: 0 0 30px #00ff88;
+  background: rgba(0, 0, 0, 0.7);
+  max-width: 700px; /* Wider container */
+  width: 90%;
+}
+
+.wizard-title {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: #66ff66;
+}
+
+.upload-label {
+  display: inline-block;
+  background-color: #004d00;
+  padding: 1rem 2rem;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 0 10px #00ff88;
+  margin-bottom: 1.5rem;
+}
+
+.upload-label input {
+  display: none;
+}
+
+.wizard-loading {
+  color: #ffff88;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+.wizard-error {
+  color: #ff6666;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+.wizard-summary {
+  background-color: #003300;
+  border: 2px solid #66ff66;
+  padding: 1.5rem;
+  border-radius: 15px;
+  margin-top: 2rem;
+  box-shadow: 0 0 15px #00ff88;
+  font-size: 1.2rem;
+}
+
+body {
+  margin: 0;
+  font-family: 'MedievalSharp', cursive;
+  background-color: #0e1d0e;
+  color: #c8facc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 20px; /* Increased base font size */
+}
+
