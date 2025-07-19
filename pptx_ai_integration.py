@@ -1,7 +1,8 @@
-# app.py - Main Flask Server
+# app.py - Main Flask Server (with PDF support)
 
 from flask import Flask, request, render_template_string, jsonify
 from pptx import Presentation
+import fitz  # PyMuPDF
 import os
 import requests
 
@@ -12,9 +13,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 AI_SERVICE_URL = "http://ai-service.local/analyze"  # Replace with your AI service endpoint
 
 UPLOAD_FORM_HTML = """
-<h2>Upload PowerPoint File</h2>
+<h2>Upload PowerPoint or PDF File</h2>
 <form method="post" enctype="multipart/form-data">
-  <input type="file" name="pptx_file">
+  <input type="file" name="uploaded_file">
   <input type="submit" value="Upload">
 </form>
 """
@@ -22,17 +23,23 @@ UPLOAD_FORM_HTML = """
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        if 'pptx_file' not in request.files:
+        if 'uploaded_file' not in request.files:
             return "No file part"
 
-        file = request.files['pptx_file']
+        file = request.files['uploaded_file']
         if file.filename == '':
             return "No selected file"
 
-        if file and file.filename.endswith('.pptx'):
+        filename = file.filename.lower()
+        if filename.endswith(('.pptx', '.pdf')):
             filepath = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(filepath)
-            extracted_data = extract_pptx_data(filepath)
+
+            if filename.endswith('.pptx'):
+                extracted_data = extract_pptx_data(filepath)
+            elif filename.endswith('.pdf'):
+                extracted_data = extract_pdf_data(filepath)
+
             os.remove(filepath)
 
             ai_response = send_to_ai(extracted_data)
@@ -42,7 +49,7 @@ def upload_file():
                 "ai_response": ai_response
             })
 
-        return "Invalid file type. Please upload a .pptx file."
+        return "Invalid file type. Please upload a .pptx or .pdf file."
 
     return render_template_string(UPLOAD_FORM_HTML)
 
@@ -62,6 +69,20 @@ def extract_pptx_data(filepath):
 
     return slide_data
 
+def extract_pdf_data(filepath):
+    doc = fitz.open(filepath)
+    page_data = []
+
+    for page_num, page in enumerate(doc, start=1):
+        text = page.get_text().strip()
+        if text:
+            page_data.append({
+                "page_number": page_num,
+                "texts": [line.strip() for line in text.split('\n') if line.strip()]
+            })
+
+    return page_data
+
 def send_to_ai(extracted_data):
     try:
         response = requests.post(
@@ -75,23 +96,3 @@ def send_to_ai(extracted_data):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-# ai_service_stub.py - Example AI Service Endpoint
-
-from flask import Flask, request, jsonify
-
-app = Flask(__name__)
-
-@app.route('/analyze', methods=['POST'])
-def analyze():
-    data = request.json
-    presentation = data.get("presentation_data", [])
-    visualization_results = run_ai_on(presentation)
-    return jsonify({"visualization": visualization_results})
-
-def run_ai_on(presentation):
-    return f"Processed {len(presentation)} slides for visualization"
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5001)
