@@ -28,24 +28,41 @@ const [summary, setSummary] = useState('');
   const navigate = useNavigate();
 
   const handleUpload = async (file) => {
+    console.log("Upload button pressed. File:", file);
     if (isLoading) return;
     setIsLoading(true);
     setError('');
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('http://localhost:3001/upload', {
+      formData.append('pptx_file', file);
+      
+      console.log("Sending POST to backend...");
+      
+      const response = await fetch('http://localhost:5000/', {
         method: 'POST',
         body: formData,
       });
-
+      console.log("Response status:", response.status);
+      
       if (!response.ok) throw new Error(await response.text());
 
-      const data = await response.json();
-      setSummary(data.summary);
-      localStorage.setItem(`cache-${file.name}`, data.summary);
+      const text = await response.text();
+      console.log("Raw response text:", text);
+      let data;
+      try {
+        data = JSON.parse(text);
+        console.log("Parsed response data:", data);
+      } 
+      catch (e) {
+        console.error("Failed to parse JSON:", e);
+        setError("Invalid response from server.");
+        return;
+      }
+
+      const summaryText = data.ai_response?.choices?.[0]?.message?.content || "No summary found.";
+      setSummary(summaryText);
+      localStorage.setItem(`cache-${file.name}`, summaryText);
 
     } catch (err) {
       setError(err.message.includes('rate limit') 

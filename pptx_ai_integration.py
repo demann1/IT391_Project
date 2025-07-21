@@ -2,14 +2,22 @@
 
 from flask import Flask, request, render_template_string, jsonify
 from pptx import Presentation
+from flask_cors import CORS
 import os
 import requests
 
+
 app = Flask(__name__)
+CORS(app)
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-AI_SERVICE_URL = "http://ai-service.local/analyze"  # Replace with your AI service endpoint
+
+#set to completions for now can change 
+AI_SERVICE_URL = "http://api.openai.com/v1/chat/completions"  # Replace with your AI service endpoint
+
+#set to this if you want an image
+#AI_SERVICE_URL = "https://api.openai.com/v1/images/generations"
 
 UPLOAD_FORM_HTML = """
 <h2>Upload PowerPoint File</h2>
@@ -36,6 +44,7 @@ def upload_file():
             os.remove(filepath)
 
             ai_response = send_to_ai(extracted_data)
+            print(ai_response)
 
             return jsonify({
                 "status": "File processed and sent to AI",
@@ -62,28 +71,49 @@ def extract_pptx_data(filepath):
 
     return slide_data
 
+# def send_to_ai(extracted_data):
+#     try:
+#         response = requests.post(
+#             AI_SERVICE_URL,
+#             json={"presentation_data": extracted_data},
+#             timeout=15
+#         )
+#         return response.json() if response.ok else {"error": response.text}
+#     except requests.exceptions.RequestException as e:
+#         return {"error": str(e)}
+
+# if __name__ == '__main__':
+#     app.run(debug=True)
+
 def send_to_ai(extracted_data):
     try:
+        headers = {
+            "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+            "Content-Type": "application/json"
+        }
+        prompt = "Summarize this presentation: " + str(extracted_data)
+        data = {
+            "model": "gpt-4o",
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 300
+        }
         response = requests.post(
             AI_SERVICE_URL,
-            json={"presentation_data": extracted_data},
+            headers=headers,
+            json=data,
             timeout=15
         )
         return response.json() if response.ok else {"error": response.text}
     except requests.exceptions.RequestException as e:
         return {"error": str(e)}
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
 # ai_service_stub.py - Example AI Service Endpoint
 
-from flask import Flask, request, jsonify
 
-app = Flask(__name__)
 
-@app.route('/analyze', methods=['POST'])
+
+
+#@app.route('/analyze', methods=['POST'])
 def analyze():
     data = request.json
     presentation = data.get("presentation_data", [])
@@ -94,4 +124,4 @@ def run_ai_on(presentation):
     return f"Processed {len(presentation)} slides for visualization"
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True)

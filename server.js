@@ -9,10 +9,10 @@ const upload = multer({ dest: 'uploads/' });
 
 //commented out the real key to test the server without hitting the API
 //uncomment to use the real OpenAI API key
-//const openai = new OpenAI(process.env.OPENAI_API_KEY);
+const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 
-const openai = new OpenAI({ apiKey: "sk-test-dummy" });
+//const openai = new OpenAI({ apiKey:  });
 
 // Rate limiting (3 requests/min for free tier)
 const limiter = rateLimit({
