@@ -16,56 +16,75 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 // Rate limiting (3 requests/min for free tier)
 const limiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 3, // Limit each IP to 3 requests per windowMs
+  windowMs: 60 * 1000,
+  max: 3,
   message: 'Too many requests - OpenAI free tier allows 3 requests/minute'
 });
-app.use('/upload', limiter);
+
+// Middleware
+app.use(express.json()); // For JSON payloads (user prompt)
+app.use(express.urlencoded({ extended: true })); // For form data
+app.use(cors());
 
 // Cache to avoid duplicate API calls
 const summaryCache = new Map();
 
-app.post('/upload', upload.single('file'), async (req, res) => {
+app.post('/upload', upload.single('file'), limiter, async (req, res) => {
   try {
-    // 1. Mock text extraction (replace with real parsing later)
-    const mockText = `Slide content from ${req.file.originalname}:\n` + 
-                     "- Topic: Artificial Intelligence\n" +
-                     "- Key Points: Machine Learning, Neural Networks";
+    // 1. Get inputs: File (optional) + User Prompt (required)
+    const userPrompt = req.body.prompt || "Summarize the key points";
+    if (!req.file && !userPrompt) {
+      return res.status(400).json({ error: "Either a file or prompt is required" });
+    }
 
-    // 2. Check cache first
-    const cacheKey = mockText.substring(0, 50); // Simple hash for demo
+    // 2. Extract text (mock for now - replace with real parsing later)
+    let textToAnalyze = userPrompt;
+    if (req.file) {
+      textToAnalyze += `\n\nFile content (${req.file.originalname}):\n` + 
+        "Mock extracted text - replace with python-pptx/pdf-parse later";
+    }
+
+    // 3. Check cache
+    const cacheKey = `${userPrompt}-${req.file?.originalname || 'no-file'}`;
     if (summaryCache.has(cacheKey)) {
       return res.json(summaryCache.get(cacheKey));
     }
 
-    // 3. Call OpenAI (GPT-3.5-turbo)
+    // 4. Call OpenAI (GPT-3.5-turbo - cheapest option)
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         { 
           role: "system", 
-          content: "Summarize this in 2 bullet points. Be concise." // Short prompt
+          content: "You summarize content based on user instructions. Be concise." 
         },
         { 
           role: "user", 
-          content: mockText 
+          content: `User instructions: ${userPrompt}\n\nContent to analyze: ${textToAnalyze}` 
         }
       ],
-      max_tokens: 60 // Limit response length
+      max_tokens: 150, // Strict limit to control costs
+      temperature: 0.3 // Less creative = more predictable
     });
 
-    // 4. Cache and respond
+    // 5. Cache and respond
     const summary = completion.choices[0].message.content;
-    summaryCache.set(cacheKey, { summary });
-    res.json({ summary });
+    summaryCache.set(cacheKey, { summary, source: req.file ? 'file+prompt' : 'prompt-only' });
+    
+    res.json({ 
+      summary,
+      model: "gpt-3.5-turbo",
+      cost_estimate: `~$${(150/1000)*0.002}` // Approx cost
+    });
 
   } catch (error) {
-    console.error('OpenAI Error:', error);
+    console.error('Error:', error);
     res.status(500).json({ 
-      error: 'AI service overloaded. Try again in 20 seconds.',
+      error: 'AI processing failed',
+      solution: 'Try again in 20 seconds or simplify your prompt',
       details: error.message 
     });
   }
 });
 
-app.listen(3001, () => console.log('Server running (GPT-3.5-turbo free tier mode)'));
+app.listen(3001, () => console.log('Server running (GPT-3.5-turbo optimized)'));

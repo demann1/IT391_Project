@@ -86,7 +86,7 @@ const [summary, setSummary] = useState('');
       <h1 className="wizard-title">🧙‍♂️ Slide Sage</h1>
 
       <label className="upload-label">
-        Upload Your Scroll (PDF)
+        Upload Your Scroll (PDF or PPTX):
         <input 
           type="file" 
           onChange={(e) => handleUpload(e.target.files[0])}
