@@ -9,7 +9,7 @@ import requests
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["http://localhost:3000"])
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -32,11 +32,11 @@ UPLOAD_FORM_HTML = """
 def upload_file():
     if request.method == 'POST':
         if 'uploaded_file' not in request.files:
-            return "No file part"
+            return jsonify({"error": "No file part"})
 
         file = request.files['uploaded_file']
         if file.filename == '':
-            return "No selected file"
+            return jsonify({"error": "No selected file"})
 
         filename = file.filename.lower()
         if filename.endswith(('.pptx', '.pdf')):
@@ -58,7 +58,8 @@ def upload_file():
                 "ai_response": ai_response
             })
 
-        return "Invalid file type. Please upload a .pptx or .pdf file."
+        return jsonify({"error": "Invalid file type. Please upload a .pptx or .pdf file."})
+    
 
     return render_template_string(UPLOAD_FORM_HTML)
 
@@ -144,7 +145,6 @@ def analyze():
 def run_ai_on(presentation):
     return f"Processed {len(presentation)} slides for visualization"
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
 if __name__ == '__main__':
     app.run(debug=True)

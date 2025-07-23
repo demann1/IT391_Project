@@ -35,7 +35,7 @@ const [summary, setSummary] = useState('');
 
     try {
       const formData = new FormData();
-      formData.append('pptx_file', file);
+      formData.append('uploaded_file', file);
       
       console.log("Sending POST to backend...");
       
