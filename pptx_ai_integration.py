@@ -129,7 +129,7 @@ def send_to_ai(extracted_data):
     except requests.exceptions.RequestException as e:
         return {"error": str(e)}
 
-# ai_service_stub.py - Example AI Service Endpoint
+
 
 
 
