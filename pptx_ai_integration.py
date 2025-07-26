@@ -1,5 +1,7 @@
 # app.py - Main Flask Server (with PDF support)
 
+#if using ngrok, change address in CORS to your ngrok address
+
 from flask import Flask, request, render_template_string, jsonify
 from pptx import Presentation
 from flask_cors import CORS
@@ -9,13 +11,15 @@ import requests
 
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000"])
+
+#The third address has to change if your ngrok address changes
+CORS(app, origins=["https://localhost:3000", "http://localhost:3000", "https://d72803912171.ngrok-free.app"])
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 #set to completions for now can change 
-AI_SERVICE_URL = "http://api.openai.com/v1/chat/completions"  # Replace with your AI service endpoint
+AI_SERVICE_URL = "https://api.openai.com/v1/chat/completions"  # Replace with your AI service endpoint
 
 #set to this if you want an image
 #AI_SERVICE_URL = "https://api.openai.com/v1/images/generations"
@@ -50,7 +54,11 @@ def upload_file():
 
             os.remove(filepath)
 
-            ai_response = send_to_ai(extracted_data)
+            prompt=request.form.get('prompt', 'Summarize this presentation')
+            if not prompt:
+                prompt = "Summarize this presentation"
+
+            ai_response = send_to_ai(extracted_data, prompt)
             print(ai_response)
 
             return jsonify({
@@ -107,16 +115,16 @@ def extract_pdf_data(filepath):
 # if __name__ == '__main__':
 #     app.run(debug=True)
 
-def send_to_ai(extracted_data):
+def send_to_ai(extracted_data, prompt):
     try:
         headers = {
             "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
             "Content-Type": "application/json"
         }
-        prompt = "Summarize this presentation: " + str(extracted_data)
+        full_prompt = f"{prompt}"+ str(extracted_data)
         data = {
             "model": "gpt-4o",
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": [{"role": "user", "content": f"{full_prompt}"}],
             "max_tokens": 300
         }
         response = requests.post(
@@ -147,6 +155,6 @@ def run_ai_on(presentation):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, ssl_context=('cert.pem', 'key.pem'))
 
 

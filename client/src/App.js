@@ -1,3 +1,6 @@
+//if using ngrok, change the response variable to your ngrok address
+//if using localhost, change the response variable to http://localhost:5000
+
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
@@ -25,6 +28,7 @@ function Wizard(){
 const [summary, setSummary] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [customPrompt, setCustomPrompt] = useState('');
   const navigate = useNavigate();
 
   const handleUpload = async (file) => {
@@ -36,10 +40,11 @@ const [summary, setSummary] = useState('');
     try {
       const formData = new FormData();
       formData.append('uploaded_file', file);
+      formData.append('prompt', customPrompt);
       
       console.log("Sending POST to backend...");
       
-      const response = await fetch('http://localhost:5000/', {
+      const response = await fetch('https://d72803912171.ngrok-free.app', {
         method: 'POST',
         body: formData,
       });
@@ -85,6 +90,16 @@ const [summary, setSummary] = useState('');
         </button>
       <h1 className="wizard-title">🧙‍♂️ Slide Sage</h1>
 
+      <label className="prompt-label">
+        What should we do with your scroll?:
+        <input
+          type="text"
+          value={customPrompt}
+          onChange={e => setCustomPrompt(e.target.value)}
+          disabled={isLoading}
+        />
+      </label>
+
       <label className="upload-label">
         Upload Your Scroll (PDF or PPTX):
         <input 
@@ -93,6 +108,8 @@ const [summary, setSummary] = useState('');
           disabled={isLoading}
         />
       </label>
+
+      
 
       {isLoading && <p className="wizard-loading">Casting Summarize Spell...</p>}
       {error && <p className="wizard-error">{error}</p>}

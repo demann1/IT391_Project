@@ -98,6 +98,18 @@
   margin-bottom: 1.5rem;
   color: #66ff66;
 }
+.prompt-label {
+  display: block;
+  margin-bottom: 20px;   
+  text-align: center;    
+  width: 100%;
+}
+
+.prompt-label input {
+  margin: 0 auto;
+  display: block;
+  text-align: center;
+}
 
 .upload-label {
   display: inline-block;
