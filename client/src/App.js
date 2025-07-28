@@ -44,6 +44,8 @@ const [summary, setSummary] = useState('');
       
       console.log("Sending POST to backend...");
       
+
+      //replace with current ngrok address
       const response = await fetch('https://d72803912171.ngrok-free.app', {
         method: 'POST',
         body: formData,
