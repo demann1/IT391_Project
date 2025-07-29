@@ -8,6 +8,7 @@ import './App.css';
 
 
 
+
 //login page
 function Login() {
   return (
@@ -45,8 +46,8 @@ const [summary, setSummary] = useState('');
       console.log("Sending POST to backend...");
       
 
-      //replace with current ngrok address
-      const response = await fetch('https://d72803912171.ngrok-free.app', {
+      //need to add your own ngrok url in .env file and save authtoken in cmd
+      const response = await fetch(process.env.REACT_APP_NGROK_URL, {
         method: 'POST',
         body: formData,
       });
