@@ -13,7 +13,7 @@ import requests
 app = Flask(__name__)
 
 #The third address has to change if your ngrok address changes
-CORS(app,origins=["https://localhost:3000", "http://localhost:3000", "https://hopeful-whippet-smiling.ngrok-free.app"])
+CORS(app,origins=["https://localhost:3000", "http://localhost:3000", os.getenv("REACT_APP_NGROK_URL")])
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
